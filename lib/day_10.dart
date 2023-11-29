@@ -7,6 +7,8 @@ final input = getDayInput(10).readAsLinesSync();
 
 final _logger = Logger('Day10');
 
+var isPart2 = false;
+
 class Cpu {
   var cycleCounter = 0;
   var x = 1;
@@ -16,7 +18,12 @@ class Cpu {
   Cpu({required this.onEachCycle});
 
   void cycle() {
-    onEachCycle(++cycleCounter, x);
+    if (isPart2) {
+      onEachCycle(cycleCounter, x);
+      cycleCounter++;
+    } else {
+      onEachCycle(++cycleCounter, x);
+    }
   }
 }
 
@@ -48,9 +55,32 @@ void day10Part1() {
 }
 
 void day10Part2() {
-  // TODO: Implement
+  isPart2 = true;
+  final oneDimScreen = <String>[];
 
-  _logger.info('');
+  final cpu = Cpu(onEachCycle: (final cycle, final x) {
+    final spritePositions = [x - 1, x, x + 1];
+    oneDimScreen.add(spritePositions.contains(cycle % 40) ? '#' : '.');
+  });
+
+  for (final instruction in input) {
+    cpu.cycle();
+    if (instruction != 'noop') {
+      cpu.cycle();
+      cpu.x += int.parse(instruction.split(' ').last);
+    }
+  }
+
+  final display = [
+    oneDimScreen.getRange(0, 39),
+    oneDimScreen.getRange(40, 79),
+    oneDimScreen.getRange(80, 119),
+    oneDimScreen.getRange(120, 159),
+    oneDimScreen.getRange(160, 199),
+    oneDimScreen.getRange(200, 239),
+  ].map((final row) => row.join('')).join('\n');
+
+  print(display);
 }
 
 void main() {
