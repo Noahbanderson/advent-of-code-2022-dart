@@ -85,11 +85,16 @@ class Monkey {
       inspected++;
 
       final theOperand = (operand == -1 ? item : operand);
-      final newWorryLevel = switch (op) {
-            MathOp.add => item + theOperand,
-            MathOp.multiply => item * theOperand,
-          } ~/
-          3;
+      var newWorryLevel = switch (op) {
+        MathOp.add => item + theOperand,
+        MathOp.multiply => item * theOperand,
+      };
+
+      if (isPart2) {
+        newWorryLevel %= magicModulus;
+      } else {
+        newWorryLevel ~/= 3;
+      }
 
       final nextMonkey = newWorryLevel % divisibleBy == 0 ? monkeyTrue : monkeyFalse;
 
@@ -99,9 +104,11 @@ class Monkey {
   }
 }
 
-void day11Part1() {
-  // TODO: Implement
+var magicModulus = 1; // Stupid math number for part 2
 
+var isPart2 = false;
+
+void _calculate() {
   final monkeyPen = <Monkey>[];
 
   // Parse Input
@@ -111,7 +118,12 @@ void day11Part1() {
       if (line == input.last) {
         details.add(line);
       }
-      monkeyPen.add(Monkey.from(details));
+
+      final monkey = Monkey.from(details);
+      monkeyPen.add(monkey);
+
+      // Part 2 weirdness
+      magicModulus *= monkey.divisibleBy;
       details = [];
     } else {
       details.add(line);
@@ -120,13 +132,14 @@ void day11Part1() {
 
   _logger.fine('Monkeys Instantiated');
 
-  // Perform 20 Rounds
-  for (var i = 0; i < 20; i++) {
-    _logger.fine('Commence Round $i');
+  final rounds = isPart2 ? 10000 : 20;
+
+  // Perform Rounds
+  for (var i = 1; i <= rounds; i++) {
+    // _logger.fine('Commence Round $i');
     for (final monkey in monkeyPen) {
       monkey.takeTurn(monkeyPen);
     }
-    // _logger.fine('Finish Round $i');
   }
 
   // Calculate the top two most active monkeys
@@ -146,10 +159,13 @@ void day11Part1() {
   _logger.info('monkeyBusiness: $monkeyBusiness');
 }
 
-void day11Part2() {
-  // TODO: Implement
+void day11Part1() {
+  _calculate();
+}
 
-  _logger.info('');
+void day11Part2() {
+  isPart2 = true;
+  _calculate();
 }
 
 void main() {
